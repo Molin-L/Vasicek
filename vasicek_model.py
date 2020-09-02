@@ -85,12 +85,17 @@ class Vasicek:
         #self.dW_P = self.sigma*self.lamb*self.dt+self.dW_Q
         self._generate_dr()
         #self.rate_P = self.rate_Q
+        print(self.rate_P.shape)
         return self.dW_Q, self.dW_P
         
     def _generate_dr(self):
-        for i in range(self.N):
-            self._forward_rate_Q()
-            self._forward_rate_P()
+        self.rate_P = np.zeros((self.N+1, self.n_sim))
+        self.rate_P.fill(self.r0)
+        for i in range(1, self.N):
+            epsilon = np.random.randn(1, self.n_sim)
+            self.rate_P[i, ] = (self.kappa*(self.theta-self.rate_P[i-1, ])-self.lamb*self.sigma)+self.sigma*np.sqrt(self.dt)*epsilon
+            #self._forward_rate_Q()
+            #self._forward_rate_P()
     
     def _forward_rate_P(self):
         '''
