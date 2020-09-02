@@ -84,16 +84,16 @@ class Vasicek:
         self.dW_P = np.random.randn(self.N, self.n_sim)
         #self.dW_P = self.sigma*self.lamb*self.dt+self.dW_Q
         self._generate_dr()
-        #self.rate_P = self.rate_Q
-        print(self.rate_P.shape)
+        print(self.rate_P)
+        #self.rate_P = self.rate_Qs
         return self.dW_Q, self.dW_P
         
     def _generate_dr(self):
         self.rate_P = np.zeros((self.N+1, self.n_sim))
         self.rate_P.fill(self.r0)
-        for i in range(1, self.N):
+        for i in range(1, self.N+1):
             epsilon = np.random.randn(1, self.n_sim)
-            self.rate_P[i, ] = (self.kappa*(self.theta-self.rate_P[i-1, ])-self.lamb*self.sigma)+self.sigma*np.sqrt(self.dt)*epsilon
+            self.rate_P[i, ] = self.rate_P[i-1, ]+(self.kappa*(self.theta-self.rate_P[i-1, ])-self.lamb*self.sigma)*self.dt+self.sigma*np.sqrt(self.dt)*epsilon
             #self._forward_rate_Q()
             #self._forward_rate_P()
     
@@ -115,11 +115,14 @@ class Vasicek:
         self.rate_Q = np.vstack((self.rate_Q, rt))
     
     def _dx(self, x):
+        return np.gradient(x, axis=0)
+        '''
         return np.divide(np.gradient(
                 x, axis=0
             ),
                 np.gradient(self.rate_P, axis=0)
             )
+        '''
 
     def _gamma_x(self, x):
         '''
@@ -155,6 +158,13 @@ class Vasicek:
         '''
         Calculate gamma hedging quantity
         '''
+        '''
+        u_gamma = list()
+        for t in np.arange(0, self.T+self.dt, self.dt):
+            temp = (np.power(-self._B(t, self.S), 2)-self.lamb*self.sigma/self.kappa)*(self._B(t, self.S)-self.S+t)-((self.sigma/(4*self.kappa))*np.power(self._B(t, self.S), 2))
+            u_gamma.append(temp)
+        '''
+        #self.quant_u_gamma = np.array(u_gamma)
         self.quant_u_gamma = np.divide((self.gamma_S*self.dT-self.dS*self.gamma_T), (self.dU*self.gamma_S-self.gamma_U*self.dS))
         self.quant_s_gamma = np.divide((self.gamma_U*self.dT-self.dU*self.gamma_T), (self.dS*self.gamma_U-self.dU*self.gamma_S))
 

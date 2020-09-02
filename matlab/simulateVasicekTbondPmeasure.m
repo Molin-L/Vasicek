@@ -17,7 +17,9 @@ for i=1:NSteps
   epsilon = randn( NPaths,1 ); 
   r(:,i)=currR;
     currR = currR + (a.*(b-currR)-(lambda*sigma/a)).*dt + sigma.*sqrt(dt).*epsilon;
-  
-end    
+end
+mean_P=mean(r, 1)
+x=0:1:100
+plot(x, mean_P)
 end
    
