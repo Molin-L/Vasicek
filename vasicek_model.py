@@ -129,8 +129,18 @@ class Vasicek:
         Calculate the gamma of x.
         '''
         return self._dx(self._dx(x))
-
+    def _test_cal_price(self, due_date):
+        T = due_date
+        price = []
+        for t in np.arange(0, self.T, self.dt):
+            A = self._A(t, T)
+            price_t = A*np.exp(-self._B(t, T)* self.rate_P[int(t/self.dt)])
+            price.append(price_t)
+        return np.array(price)
     def _cal_price(self, due_date, mode='P'):
+        '''
+        Calculate prices with different due date
+        '''
         price_list = []
         T = due_date
         mode = mode.upper()
@@ -192,6 +202,25 @@ class Vasicek:
 
         self.pf_s2 = -self.Tprice+self.quant_s_gamma*self.Sprice+self.Uprice*self.quant_u_gamma+qz*self.ZCB_price
         self.qz_s2 = qz
+
+    def _A(self, t, T):
+        result = np.exp(
+            (
+                (self.theta-(np.power(self.sigma, 2)/(2*np.power(self.kappa, 2)))
+                -
+                (self.lamb*self.sigma/self.kappa)
+                )
+                *
+                (self._B(t, T)-T+t)
+            )
+            -
+            (
+                (
+                    (np.power(self.sigma, 2)/(4*self.kappa))*np.power(self._B(t, T), 2)
+                )
+            )
+        )
+        return result
     
     def _A_P(self, t, T):
         return np.exp(

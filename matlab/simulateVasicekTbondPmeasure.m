@@ -1,6 +1,7 @@
 function [r,times]=simulateVasicekTbondPmeasure(  )
 %SIMULATEVASICEK Generate simulations of the Vasickek model
-rng('default')
+%rng('default')
+rng(5555555)
 r0=0.02;
 a=0.5;
 b=0.05;
